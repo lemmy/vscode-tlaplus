@@ -75,6 +75,22 @@ export function activate(context: vscode.ExtensionContext): void {
             TLAPLUS_FILE_SELECTOR,
             new TlaCodeActionProvider(),
             { providedCodeActionKinds: [ vscode.CodeActionKind.Source ] }),
+        vscode.commands.registerCommand('tlaplus.debug.debugEditorContents', (resource: vscode.Uri) => {
+            let targetResource = resource;
+            if (!targetResource && vscode.window.activeTextEditor) {
+                targetResource = vscode.window.activeTextEditor.document.uri;
+            }
+            if (targetResource) {
+                vscode.debug.startDebugging(undefined, {
+                    type: 'tlaplus',
+                    name: 'Debug Spec',
+                    request: 'launch',
+                    program: targetResource.fsPath
+                });
+            }
+        }),
+        vscode.debug.registerDebugAdapterDescriptorFactory('tlaplus', new TLADebugAdapterServerDescriptorFactory()),
+
         vscode.languages.registerOnTypeFormattingEditProvider(
             TLAPLUS_FILE_SELECTOR,
             new TlaOnTypeFormattingEditProvider(),
@@ -135,4 +151,11 @@ function getMajorMinor(version: string | undefined): string | undefined {
     }
     const matches = /^(\d+.\d+)/g.exec(version);
     return matches ? matches[1] : undefined;
+}
+
+class TLADebugAdapterServerDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
+
+	createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+		return new vscode.DebugAdapterServer(4712);
+	}
 }
