@@ -90,8 +90,8 @@ export async function runTex(tlaFilePath: string): Promise<ToolProcessInfo> {
     );
 }
 
-export async function runTlc(tlaFilePath: string, cfgFilePath: string): Promise<ToolProcessInfo> {
-    const customOptions = getConfigOptions(CFG_TLC_OPTIONS);
+export async function runTlc(tlaFilePath: string, cfgFilePath: string, extraOpts: string[]=[]): Promise<ToolProcessInfo> {
+    const customOptions = extraOpts.concat(getConfigOptions(CFG_TLC_OPTIONS));
     const javaOptions = [];
     const shareStats = vscode.workspace.getConfiguration().get<ShareOption>(CFG_TLC_STATISTICS_TYPE);
     if (shareStats !== ShareOption.DoNotShare) {
