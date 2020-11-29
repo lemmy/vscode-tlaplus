@@ -13,11 +13,42 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '12.12'
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install
+        npm install -g vsce
     - name: Build
-      run: npm run vscode:prepublish
+      run: |
+        npm run vscode:prepublish
+        vsce package
     - name: Check
       run: |
         npm run lint
         npm test --silent
+    - name: Create Release
+      id: create_release
+      if: matrix.os == 'macOS-latest'
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{steps.date.outputs.date}}
+        release_name: ${{steps.date.outputs.date}}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      if: matrix.os == 'macOS-latest'
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: vscode-tlaplus-1.5.2.vsix
+        asset_name: vscode-tlaplus-1.5.2.vsix
+        asset_content_type: application/zip
+        
+        
