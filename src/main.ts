@@ -116,7 +116,23 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.languages.registerDefinitionProvider(
             TLAPLUS_FILE_SELECTOR,
             new TlaDefinitionsProvider(tlaDocInfos)
-        )
+        ),
+        vscode.languages.registerEvaluatableExpressionProvider(
+            TLAPLUS_FILE_SELECTOR, {
+            // https://github.com/microsoft/vscode/issues/89084
+            // https://github.com/microsoft/vscode/issues/24520
+            // https://github.com/microsoft/vscode-mock-debug/blob/393ee2b2443e270bacd9f11fa219c39a88fc987d/src/extension.ts#L63-L84
+            provideEvaluatableExpression(document: vscode.TextDocument, position: vscode.Position): vscode.ProviderResult<vscode.EvaluatableExpression> {
+                const wordRange = document.getWordRangeAtPosition(position);
+                return wordRange ? new vscode.EvaluatableExpression(wordRange,
+                    encodeURI(
+                        "tlaplus://" + document.fileName + "?" + document.getText(wordRange) + "#" +
+                        (wordRange.start.line + 1) + " " +
+                        (wordRange.start.character + 1) + " " +
+                        (wordRange.end.line + 1) + " " +
+                        (wordRange.end.character + 1))) : undefined;
+            }
+        })
     );
     syncTlcStatisticsSetting()
         .catch((err) => console.error(err))
