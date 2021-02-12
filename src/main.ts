@@ -130,7 +130,11 @@ export function activate(context: vscode.ExtensionContext): void {
                         (wordRange.start.line + 1) + " " +
                         (wordRange.start.character + 1) + " " +
                         (wordRange.end.line + 1) + " " +
-                        (wordRange.end.character + 1))) : undefined;
+                        // For SANY, the location of the first character in a file is:
+                        //   1 1 1 1
+                        // whereas VSCode defines it to be:
+                        //   1 1 1 2
+                        (wordRange.end.character /** + 1 */))) : undefined;
             }
         })
     );
