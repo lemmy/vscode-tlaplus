@@ -121,22 +121,27 @@ export function activate(context: vscode.ExtensionContext): void {
             TLAPLUS_FILE_SELECTOR, {
             // https://github.com/microsoft/vscode/issues/89084
             // https://github.com/microsoft/vscode/issues/24520
-            // https://github.com/microsoft/vscode-mock-debug/blob/393ee2b2443e270bacd9f11fa219c39a88fc987d/src/extension.ts#L63-L84
-            provideEvaluatableExpression(document: vscode.TextDocument, position: vscode.Position): vscode.ProviderResult<vscode.EvaluatableExpression> {
-                const wordRange = document.getWordRangeAtPosition(position);
-                return wordRange ? new vscode.EvaluatableExpression(wordRange,
-                    encodeURI(
-                        "tlaplus://" + document.fileName + "?" + document.getText(wordRange) + "#" +
-                        (wordRange.start.line + 1) + " " +
-                        (wordRange.start.character + 1) + " " +
-                        (wordRange.end.line + 1) + " " +
-                        // For SANY, the location of the first character in a file is:
-                        //   1 1 1 1
-                        // whereas VSCode defines it to be:
-                        //   1 1 1 2
-                        (wordRange.end.character /** + 1 */))) : undefined;
-            }
-        })
+            // https://github.com/microsoft/vscode-mock-debug/blob/ (stupid linter!)
+            // 393ee2b2443e270bacd9f11fa219c39a88fc987d/src/extension.ts#L63-L84
+            // Also see wordPattern in tlaplus-lang-config.json that drops "@"
+            // and "'" compared to VSCode's standard wordPattern.
+            // https://github.com/alygin/vscode-tlaplus/issues/200
+                provideEvaluatableExpression(document: vscode.TextDocument, position: vscode.Position):
+                    vscode.ProviderResult<vscode.EvaluatableExpression> {
+                    const wordRange = document.getWordRangeAtPosition(position);
+                    return wordRange ? new vscode.EvaluatableExpression(wordRange,
+                        encodeURI(
+                            'tlaplus://' + document.fileName + '?' + document.getText(wordRange) + '#' +
+                            (wordRange.start.line + 1) + ' ' +
+                            (wordRange.start.character + 1) + ' ' +
+                            (wordRange.end.line + 1) + ' ' +
+                            // For SANY, the location of the first character in a file is:
+                            //   1 1 1 1
+                            // whereas VSCode defines it to be:
+                            //   1 1 1 2
+                            (wordRange.end.character /** + 1 */))) : undefined;
+                }
+            })
     );
     syncTlcStatisticsSetting()
         .catch((err) => console.error(err))
@@ -175,7 +180,8 @@ function getMajorMinor(version: string | undefined): string | undefined {
 
 class TLADebugAdapterServerDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
 
-	createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
-		return new vscode.DebugAdapterServer(4712);
-	}
+    createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined):
+        vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+        return new vscode.DebugAdapterServer(4712);
+    }
 }
