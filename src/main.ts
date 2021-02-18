@@ -89,8 +89,9 @@ export function activate(context: vscode.ExtensionContext): void {
                 });
             }
         }),
-        vscode.debug.registerDebugAdapterDescriptorFactory('tlaplus', new TLADebugAdapterServerDescriptorFactory()),
-
+        vscode.debug.registerDebugAdapterDescriptorFactory(
+            LANG_TLAPLUS,
+            new TLADebugAdapterServerDescriptorFactory()),
         vscode.languages.registerOnTypeFormattingEditProvider(
             TLAPLUS_FILE_SELECTOR,
             new TlaOnTypeFormattingEditProvider(),
