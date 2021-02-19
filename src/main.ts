@@ -107,11 +107,11 @@ export function activate(context: vscode.ExtensionContext): void {
             new TlaDefinitionsProvider(tlaDocInfos)
         ),
         vscode.commands.registerCommand(
-            'tlaplus.debug.checkAndDebugEditorContents', 
+            'tlaplus.debug.checkAndDebugEditorContents',
             (uri) => checkAndDebugSpec(uri, diagnostic, context)
         ),
         vscode.commands.registerCommand(
-            'tlaplus.debug.debugEditorContents', 
+            'tlaplus.debug.debugEditorContents',
             (uri) => debugSpec(uri, diagnostic, context)
         ),
         vscode.languages.registerEvaluatableExpressionProvider(
@@ -193,7 +193,7 @@ export async function debugSpec(
 ): Promise<void> {
     let targetResource = resource;
     if (!targetResource && vscode.window.activeTextEditor) {
-        // Since this command is registered as a button on the editor menu, I don't 
+        // Since this command is registered as a button on the editor menu, I don't
         // think this branch is ever taken.  It's here because the DAP example has it.
         targetResource = vscode.window.activeTextEditor.document.uri;
     }
@@ -223,7 +223,7 @@ export async function checkAndDebugSpec(
 ): Promise<void> {
     let targetResource = resource;
     if (!targetResource && vscode.window.activeTextEditor) {
-        // Since this command is registered as a button on the editor menu, I don't 
+        // Since this command is registered as a button on the editor menu, I don't
         // think this branch is ever taken.  It's here because the DAP example has it.
         targetResource = vscode.window.activeTextEditor.document.uri;
     }
