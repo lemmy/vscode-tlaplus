@@ -208,7 +208,7 @@ function attachFileSaver(tlaFilePath: string, proc: ChildProcess) {
 /**
  * Finds all files that needed to run model check.
  */
-async function getSpecFiles(fileUri: vscode.Uri): Promise<SpecFiles | undefined> {
+export async function getSpecFiles(fileUri: vscode.Uri): Promise<SpecFiles | undefined> {
     const filePath = fileUri.fsPath;
     let specFiles;
     let canRun = true;

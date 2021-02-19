@@ -178,10 +178,16 @@
                 "category": "TLA+"
             },
             {
-                "command": "tlaplus.debug.debugEditorContents",
-                "title": "Debug...",
+                "command": "tlaplus.debug.checkAndDebugEditorContents",
+                "title": "Check and debug model with TLC",
                 "enablement": "!inDebugMode",
                 "icon": "$(debug-alt)",
+                "category": "TLA+"
+            },
+            {
+                "command": "tlaplus.debug.debugEditorContents",
+                "title": "Debug a running model",
+                "enablement": "!inDebugMode",
                 "category": "TLA+"
             }
         ],
@@ -242,6 +248,10 @@
                 {
                     "command": "tlaplus.debug.debugEditorContents",
                     "when": "editorLangId == tlaplus"
+                },
+                {
+                    "command": "tlaplus.debug.checkAndDebugEditorContents",
+                    "when": "editorLangId == tlaplus"
                 }
             ],
             "explorer/context": [
@@ -268,14 +278,14 @@
                     "group": "z_commands"
                 },
                 {
-                    "command": "tlaplus.debug.debugEditorContents",
+                    "command": "tlaplus.debug.checkAndDebugEditorContents",
                     "when": "editorLangId == tlaplus",
                     "group": "z_commands"
                 }
             ],
             "editor/title": [
                 {
-                    "command": "tlaplus.debug.debugEditorContents",
+                    "command": "tlaplus.debug.checkAndDebugEditorContents",
                     "when": "resourceLangId == tlaplus",
                     "group": "1_run@20"
                 }

@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { CMD_CHECK_MODEL_RUN, CMD_CHECK_MODEL_STOP, CMD_CHECK_MODEL_DISPLAY, CMD_SHOW_TLC_OUTPUT,
+import {
+    CMD_CHECK_MODEL_RUN, CMD_CHECK_MODEL_STOP, CMD_CHECK_MODEL_DISPLAY, CMD_SHOW_TLC_OUTPUT,
     CMD_CHECK_MODEL_CUSTOM_RUN, checkModel, displayModelChecking, stopModelChecking,
-    showTlcOutput, checkModelCustom, CMD_CHECK_MODEL_RUN_AGAIN, runLastCheckAgain} from './commands/checkModel';
+    showTlcOutput, checkModelCustom, CMD_CHECK_MODEL_RUN_AGAIN, runLastCheckAgain, doCheckModel, getSpecFiles
+} from './commands/checkModel';
 import { CMD_EVALUATE_SELECTION, evaluateSelection, CMD_EVALUATE_EXPRESSION,
     evaluateExpression } from './commands/evaluateExpression';
 import { parseModule, CMD_PARSE_MODULE } from './commands/parseModule';
@@ -103,6 +105,10 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.languages.registerDefinitionProvider(
             TLAPLUS_FILE_SELECTOR,
             new TlaDefinitionsProvider(tlaDocInfos)
+        ),
+        vscode.commands.registerCommand(
+            'tlaplus.debug.checkAndDebugEditorContents', 
+            (uri) => checkAndDebugSpec(uri, diagnostic, context)
         ),
         vscode.commands.registerCommand(
             'tlaplus.debug.debugEditorContents', 
@@ -207,3 +213,41 @@ export async function debugSpec(
     }
 }
 
+/**
+ * Runs TLC in debugger mode and attaches the DAP front-end.
+ */
+export async function checkAndDebugSpec(
+    resource: vscode.Uri | undefined,
+    diagnostic: vscode.DiagnosticCollection,
+    context: vscode.ExtensionContext
+): Promise<void> {
+    let targetResource = resource;
+    if (!targetResource && vscode.window.activeTextEditor) {
+        // Since this command is registered as a button on the editor menu, I don't 
+        // think this branch is ever taken.  It's here because the DAP example has it.
+        targetResource = vscode.window.activeTextEditor.document.uri;
+    }
+    if (targetResource) {
+        const specFiles = await getSpecFiles(targetResource);
+        if (!specFiles) {
+            return;
+        }
+        // false => Don't open the result view, it's empty anyway (see above).
+        // Don't await doCheckModel because it only returns after TLC terminates.
+        doCheckModel(specFiles, true, context, diagnostic, ['-debugger']);
+        setTimeout(function() {
+            if (targetResource) {
+                vscode.debug.startDebugging(undefined, {
+                    type: 'tlaplus',
+                    name: 'Debug Spec',
+                    request: 'launch',
+                    program: targetResource.fsPath
+                });
+            }
+        }, 2_000); // Wait two seconds hoping this is enough for TLC to listen on 4712.
+        // In the future, we have to come up with a non-racy handshake.  What would be
+        // way more elegant is for VSCode to a) open a serversocker on a free port, b)
+        // launch the TLC process passing the port number, and c) for TLC to connect
+        // to the given port.
+    }
+}
