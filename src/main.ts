@@ -75,20 +75,6 @@ export function activate(context: vscode.ExtensionContext): void {
             TLAPLUS_FILE_SELECTOR,
             new TlaCodeActionProvider(),
             { providedCodeActionKinds: [ vscode.CodeActionKind.Source ] }),
-        vscode.commands.registerCommand('tlaplus.debug.debugEditorContents', (resource: vscode.Uri) => {
-            let targetResource = resource;
-            if (!targetResource && vscode.window.activeTextEditor) {
-                targetResource = vscode.window.activeTextEditor.document.uri;
-            }
-            if (targetResource) {
-                vscode.debug.startDebugging(undefined, {
-                    type: 'tlaplus',
-                    name: 'Debug Spec',
-                    request: 'launch',
-                    program: targetResource.fsPath
-                });
-            }
-        }),
         vscode.debug.registerDebugAdapterDescriptorFactory(
             LANG_TLAPLUS,
             new TLADebugAdapterServerDescriptorFactory()),
@@ -117,6 +103,10 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.languages.registerDefinitionProvider(
             TLAPLUS_FILE_SELECTOR,
             new TlaDefinitionsProvider(tlaDocInfos)
+        ),
+        vscode.commands.registerCommand(
+            'tlaplus.debug.debugEditorContents', 
+            (uri) => debugSpec(uri, diagnostic, context)
         ),
         vscode.languages.registerEvaluatableExpressionProvider(
             TLAPLUS_FILE_SELECTOR, {
@@ -186,3 +176,34 @@ class TLADebugAdapterServerDescriptorFactory implements vscode.DebugAdapterDescr
         return new vscode.DebugAdapterServer(4712);
     }
 }
+
+/**
+ * Attaches the DAP front-end to an already running TLC debugger.
+ */
+export async function debugSpec(
+    resource: vscode.Uri | undefined,
+    diagnostic: vscode.DiagnosticCollection,
+    context: vscode.ExtensionContext
+): Promise<void> {
+    let targetResource = resource;
+    if (!targetResource && vscode.window.activeTextEditor) {
+        // Since this command is registered as a button on the editor menu, I don't 
+        // think this branch is ever taken.  It's here because the DAP example has it.
+        targetResource = vscode.window.activeTextEditor.document.uri;
+    }
+    if (targetResource) {
+        // Attaching to a separately launched TLC leaves the result view (webview) empty.
+        // However, TLC sends its output via the DAP Output event
+        // (https://microsoft.github.io/debug-adapter-protocol/specification#Events_Output)
+        // to VSCode.  Somebody has to figure out how to wire this up. In the meantime,
+        // users have to manually "parse" the output on VSCode's DebugConsole. Unfortunately,
+        // it is TLC's '-tool' output containing "@!@!@" markers around each message.
+        vscode.debug.startDebugging(undefined, {
+            type: 'tlaplus',
+            name: 'Debug Spec',
+            request: 'launch',
+            program: targetResource.fsPath
+        });
+    }
+}
+
