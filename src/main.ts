@@ -179,7 +179,7 @@ class TLADebugAdapterServerDescriptorFactory implements vscode.DebugAdapterDescr
 
     createDebugAdapterDescriptor(session: vscode.DebugSession, executable: vscode.DebugAdapterExecutable | undefined):
         vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
-        return new vscode.DebugAdapterServer(4712);
+            return new vscode.DebugAdapterServer(session.configuration['port']);
     }
 }
 
@@ -232,16 +232,19 @@ export async function checkAndDebugSpec(
         if (!specFiles) {
             return;
         }
+        // Randomly select a port on which we request the debugger to listen
+        const port = Math.floor(Math.random() * (64510 - 1025 + 1)) + 1025;
         // false => Don't open the result view, it's empty anyway (see above).
         // Don't await doCheckModel because it only returns after TLC terminates.
-        doCheckModel(specFiles, true, context, diagnostic, ['-debugger']);
+        doCheckModel(specFiles, true, context, diagnostic, ['-debugger', `port='${port}'`]);
         setTimeout(function() {
             if (targetResource) {
                 vscode.debug.startDebugging(undefined, {
                     type: 'tlaplus',
                     name: 'Debug Spec',
                     request: 'launch',
-                    program: targetResource.fsPath
+                    program: targetResource.fsPath,
+                    port: port
                 });
             }
         }, 2_000); // Wait two seconds hoping this is enough for TLC to listen on 4712.
