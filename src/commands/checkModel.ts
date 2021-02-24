@@ -158,7 +158,7 @@ export async function doCheckModel(
     showCheckResultView: boolean,
     extContext: vscode.ExtensionContext,
     diagnostic: vscode.DiagnosticCollection,
-    extraOpts:  string[]=[]
+    extraOpts: string[]=[]
 ): Promise<ModelCheckResult | undefined> {
     try {
         lastCheckFiles = specFiles;
