@@ -9,7 +9,7 @@
         "name": "Andrew Lygin"
     },
     "engines": {
-        "vscode": "^1.45.0"
+        "vscode": "^1.57.0"
     },
     "categories": [
         "Programming Languages",
@@ -391,25 +391,25 @@
         "test": "node ./out/tests/runTest.js"
     },
     "devDependencies": {
-        "@types/glob": "^7.1.1",
-        "@types/mocha": "^8.2.1",
-        "@types/node": "^12.12.8",
-        "@types/vscode": "^1.44.0",
-        "@typescript-eslint/eslint-plugin": "^4.17.0",
-        "@typescript-eslint/parser": "^4.17.0",
-        "eslint": "^7.21.0",
-        "glob": "^7.1.6",
-        "mocha": "^8.3.1",
-        "node": "^12.12.0",
+        "@types/glob": "^7.1.4",
+        "@types/mocha": "^8.2.3",
+        "@types/node": "^12.20.19",
+        "@types/vscode": "^1.57.0",
+        "@typescript-eslint/eslint-plugin": "^4.29.2",
+        "@typescript-eslint/parser": "^4.29.2",
+        "eslint": "^7.32.0",
+        "glob": "^7.1.7",
+        "mocha": "^8.4.0",
+        "node": "^12.22.4",
         "source-map-support": "^0.5.19",
-        "typescript": "^4.2.3",
-        "vscode-test": "^1.3.0",
-        "vscode-debugadapter-testsupport": "^1.42.0"
+        "typescript": "^4.3.5",
+        "vscode-debugadapter-testsupport": "^1.48.0",
+        "vscode-test": "^1.6.1"
     },
     "dependencies": {
         "await-notify": "^1.0.1",
-        "moment": "^2.24.0",
-        "vscode-uri": "^3.0.2",
-        "vscode-debugadapter": "^1.42.1"
+        "moment": "^2.29.1",
+        "vscode-debugadapter": "^1.48.0",
+        "vscode-uri": "^3.0.2"
     }
 }
