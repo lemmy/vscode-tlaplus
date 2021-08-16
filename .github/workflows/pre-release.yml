@@ -19,6 +19,10 @@ jobs:
     - name: Get current version
       id: version
       run: echo "::set-output name=version::$(jq -r .version package.json)"
+    - name: Patch up version number
+      id: pre-release-version-hack
+      run: |
+        (cat package.json | jq --arg VER "${{ steps.version.outputs.version }}-${{ github.event.inputs.suffix }}" '.version=$VER') > package.json.patched && mv package.json.patched package.json
     - name: Install dependencies
       run: |
         npm install
@@ -48,6 +52,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_pre_release.outputs.upload_url }}
-        asset_path: vscode-tlaplus-${{ steps.version.outputs.version }}.vsix
-        asset_name: vscode-tlaplus-${{ steps.version.outputs.version }}.vsix
+        asset_path: vscode-tlaplus-${{ steps.version.outputs.version }}-${{ github.event.inputs.suffix }}.vsix
+        asset_name: vscode-tlaplus-${{ steps.version.outputs.version }}-${{ github.event.inputs.suffix }}.vsix
         asset_content_type: application/zip
