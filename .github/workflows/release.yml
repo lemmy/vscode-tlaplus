@@ -60,3 +60,29 @@ jobs:
     - name: Publish to Marketplace
       run: |
         vsce publish $(git log -1 --format=%cd --date="format:%Y.%-m.%-d%H%M") --pat "${{ secrets.VSCODE_MARKETPLACE_TLAPLUS_TOKEN }}"
+    - name: Create or update pre-release
+      id: release
+      run: |
+          ls -lah
+          RELEASE_NAME="Pre-Release"
+          RELEASE_VERSION=$(date +'%Y%m%d%H%M%S')  # Timestamp as version
+
+          # Check if a pre-release already exists
+          if gh release list --repo ${{ github.repository }} | grep "$RELEASE_NAME"; then
+            # Update existing pre-release
+            gh release delete "$RELEASE_NAME" --repo ${{ github.repository }} -y
+          fi
+
+          # Create a new pre-release
+          gh release create "$RELEASE_NAME" \
+            --prerelease \
+            --title "$RELEASE_NAME" \
+            --notes "Automated pre-release created by GitHub Actions" \
+            --target "${{ github.sha }}" \
+            --repo ${{ github.repository }}
+
+    - name: Upload artifacts to pre-release
+      run: |
+          gh release upload "Pre-Release" artifacts/build.tar.gz \
+            --repo ${{ github.repository }}
+
